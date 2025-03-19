@@ -20,7 +20,7 @@ pub struct BPlusTree {
 impl BPlusTree {
     pub fn new(order: Option<usize>) -> Self {
         Self {
-            order: order.unwrap_or(4),
+            order: order.unwrap_or(32),
             root: None,
         }
     }
@@ -48,13 +48,13 @@ mod tests {
     #[test]
     fn new_bplustree() {
         let bplustree = BPlusTree::new(None);
-        assert_eq!(bplustree.order, 4);
+        assert_eq!(bplustree.order, 32);
     }
 
     #[test]
     fn insert_into_root() {
         let mut bplustree = BPlusTree::new(None);
-        assert_eq!(bplustree.order, 4);
+        assert_eq!(bplustree.order, 32);
 
         bplustree.insert(10, "Ten".to_string());
         assert_ne!(bplustree.root, None);
