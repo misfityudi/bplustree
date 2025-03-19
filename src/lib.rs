@@ -1,23 +1,23 @@
-#[derive(Debug, PartialEq)]
-pub enum BplusTreeNode {
+#[derive(Debug, PartialEq, Clone)]
+pub enum BPlusTreeNode {
     Internal {
         keys: Vec<i32>,
-        children: Vec<Box<BplusTreeNode>>,
+        children: Vec<Box<BPlusTreeNode>>,
     },
     Leaf {
         keys: Vec<i32>,
         values: Vec<String>,
-        next: Option<Box<BplusTreeNode>>,
+        next: Option<Box<BPlusTreeNode>>,
     },
 }
 
 #[derive(Debug)]
-pub struct BplusTree {
+pub struct BPlusTree {
     pub order: usize,
-    pub root: Option<Box<BplusTreeNode>>,
+    pub root: Option<Box<BPlusTreeNode>>,
 }
 
-impl BplusTree {
+impl BPlusTree {
     pub fn new(order: Option<usize>) -> Self {
         Self {
             order: order.unwrap_or(4),
@@ -29,7 +29,7 @@ impl BplusTree {
         match &mut self.root {
             Some(node) => Self::insert_into_node(node, key, value, self.order),
             None => {
-                self.root = Some(Box::new(BplusTreeNode::Leaf {
+                self.root = Some(Box::new(BPlusTreeNode::Leaf {
                     keys: vec![key],
                     values: vec![value],
                     next: None,
@@ -38,7 +38,7 @@ impl BplusTree {
         }
     }
 
-    fn insert_into_node(node: &mut BplusTreeNode, key: i32, value: String, order: usize) {}
+    fn insert_into_node(node: &mut BPlusTreeNode, key: i32, value: String, order: usize) {}
 }
 
 #[cfg(test)]
@@ -47,13 +47,13 @@ mod tests {
 
     #[test]
     fn new_bplustree() {
-        let bplustree = BplusTree::new(None);
+        let bplustree = BPlusTree::new(None);
         assert_eq!(bplustree.order, 4);
     }
 
     #[test]
     fn insert_into_root() {
-        let mut bplustree = BplusTree::new(None);
+        let mut bplustree = BPlusTree::new(None);
         assert_eq!(bplustree.order, 4);
 
         bplustree.insert(10, "Ten".to_string());
