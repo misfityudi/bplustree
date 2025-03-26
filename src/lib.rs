@@ -72,17 +72,59 @@ mod tests {
     use super::*;
 
     #[test]
-    fn new_bplustree() {
+    fn test_new_bplustree() {
         let bplustree = BPlusTree::new(None);
         assert_eq!(bplustree.order, 32);
     }
 
     #[test]
-    fn insert_into_root() {
+    fn test_insert_into_root() {
         let mut bplustree = BPlusTree::new(None);
         assert_eq!(bplustree.order, 32);
 
         bplustree.insert(10, "Ten".to_string());
         assert_ne!(bplustree.root, None);
     }
+
+    #[test]
+    fn test_bulk_insert(){}
+
+    #[test]
+    fn test_search(){}
+
+    #[test]
+    fn test_update(){}
+
+    #[test]
+    fn test_range_search(){}
+
+    #[test]
+    fn test_min(){}
+
+    #[test]
+    fn test_max(){}
+
+    #[test]
+    fn test_delete(){}
+
+    #[test]
+    fn test_save_to_disk(){}
+
+    #[test]
+    fn test_load_from_disk(){}
+
+    #[test]
+    fn test_insert_into_node(){}
+
+    #[test]
+    fn test_split_node(){}
+
+    #[test]
+    fn test_merge_nodes(){}
+
+    #[test]
+    fn test_borrow_from_sibling(){}
+
+    #[test]
+    fn test_traverse(){}
 }
