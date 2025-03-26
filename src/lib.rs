@@ -38,7 +38,33 @@ impl BPlusTree {
         }
     }
 
+    pub fn bulk_insert() {}
+
+    pub fn search() {}
+
+    pub fn update() {}
+
+    pub fn range_search() {}
+
+    pub fn min() {}
+
+    pub fn max() {}
+
+    pub fn delete() {}
+
+    pub fn save_to_disk() {}
+
+    pub fn load_from_disk() {}
+
     fn insert_into_node(node: &mut Node, key: i32, value: String, order: usize) {}
+
+    fn split_node() {}
+
+    fn merge_nodes() {}
+
+    fn borrow_from_sibiling() {}
+
+    fn traverse() {}
 }
 
 #[cfg(test)]
