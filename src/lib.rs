@@ -32,7 +32,12 @@ impl BPlusTree {
         }
     }
 
-    pub fn insert(&mut self, key: i32, value: String) {}
+    pub fn insert(&mut self, key: i32, value: String) {
+        match &mut self.root {
+            None => self.insert_into_root(key, value),
+            Some(Node) => println!("insert into either an internal node or a leaf node"),
+        }
+    }
 
     pub fn bulk_insert() {}
 
@@ -52,7 +57,15 @@ impl BPlusTree {
 
     pub fn load_from_disk() {}
 
-    fn insert_into_root(node: &mut Node, key: i32, value: String, order: usize) {}
+    fn insert_into_root(&mut self, key: i32, value: String) {
+        let leaf = LeafNode {
+            keys: vec![key],
+            values: vec![value],
+            next: None,
+            prev: None,
+        };
+        self.root = Some(Box::new(Node::Leaf(leaf)));
+    }
 
     fn insert_into_internal_node(node: &mut Node, key: i32, value: String, order: usize) {}
 
@@ -73,12 +86,29 @@ mod tests {
 
     #[test]
     fn test_new_bplustree() {
-        let bplustree = BPlusTree::new(None);
-        assert_eq!(bplustree.order, 32);
+        let tree = BPlusTree::new(None);
+        assert_eq!(tree.order, 32);
     }
 
     #[test]
-    fn test_insert_into_root() {}
+    fn test_insert_into_root() {
+        let mut tree = BPlusTree::new(None);
+        tree.insert(5, "Five".to_string());
+
+        if let Some(node) = &tree.root {
+            match node.as_ref() {
+                Node::Leaf(leaf) => {
+                    assert_eq!(leaf.keys, vec![5]);
+                    assert_eq!(leaf.values, vec!["Five".to_string()]);
+                    assert!(leaf.next.is_none());
+                    assert!(leaf.prev.is_none());
+                }
+                Node::Internal(_) => panic!("Expected Lead node, got Internal node"),
+            }
+        } else {
+            panic!("Root node should not be None after insertion");
+        }
+    }
 
     #[test]
     fn test_insert_into_internal_node() {}
