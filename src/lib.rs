@@ -1,20 +1,20 @@
 #[derive(Debug, PartialEq, Clone)]
-pub enum BPlusTreeNode {
+pub enum Node {
     Internal {
         keys: Vec<i32>,
-        children: Vec<Box<BPlusTreeNode>>,
+        children: Vec<Box<Node>>,
     },
     Leaf {
         keys: Vec<i32>,
         values: Vec<String>,
-        next: Option<Box<BPlusTreeNode>>,
+        next: Option<Box<Node>>,
     },
 }
 
 #[derive(Debug)]
 pub struct BPlusTree {
     pub order: usize,
-    pub root: Option<Box<BPlusTreeNode>>,
+    pub root: Option<Box<Node>>,
 }
 
 impl BPlusTree {
@@ -29,7 +29,7 @@ impl BPlusTree {
         match &mut self.root {
             Some(node) => Self::insert_into_node(node, key, value, self.order),
             None => {
-                self.root = Some(Box::new(BPlusTreeNode::Leaf {
+                self.root = Some(Box::new(Node::Leaf {
                     keys: vec![key],
                     values: vec![value],
                     next: None,
@@ -38,7 +38,7 @@ impl BPlusTree {
         }
     }
 
-    fn insert_into_node(node: &mut BPlusTreeNode, key: i32, value: String, order: usize) {}
+    fn insert_into_node(node: &mut Node, key: i32, value: String, order: usize) {}
 }
 
 #[cfg(test)]
