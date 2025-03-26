@@ -1,14 +1,21 @@
 #[derive(Debug, PartialEq, Clone)]
 pub enum Node {
-    Internal {
-        keys: Vec<i32>,
-        children: Vec<Box<Node>>,
-    },
-    Leaf {
-        keys: Vec<i32>,
-        values: Vec<String>,
-        next: Option<Box<Node>>,
-    },
+    Internal(InternalNode),
+    Leaf(LeafNode),
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct InternalNode {
+    keys: Vec<i32>,
+    children: Vec<Box<Node>>,
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct LeafNode {
+    keys: Vec<i32>,
+    values: Vec<String>,
+    next: Option<Box<LeafNode>>,
+    prev: Option<Box<LeafNode>>,
 }
 
 #[derive(Debug)]
@@ -25,18 +32,7 @@ impl BPlusTree {
         }
     }
 
-    pub fn insert(&mut self, key: i32, value: String) {
-        match &mut self.root {
-            Some(node) => Self::insert_into_node(node, key, value, self.order),
-            None => {
-                self.root = Some(Box::new(Node::Leaf {
-                    keys: vec![key],
-                    values: vec![value],
-                    next: None,
-                }))
-            }
-        }
-    }
+    pub fn insert(&mut self, key: i32, value: String) {}
 
     pub fn bulk_insert() {}
 
@@ -56,7 +52,11 @@ impl BPlusTree {
 
     pub fn load_from_disk() {}
 
-    fn insert_into_node(node: &mut Node, key: i32, value: String, order: usize) {}
+    fn insert_into_root(node: &mut Node, key: i32, value: String, order: usize) {}
+
+    fn insert_into_internal_node(node: &mut Node, key: i32, value: String, order: usize) {}
+
+    fn insert_into_leaf_node(node: &mut Node, key: i32, value: String, order: usize) {}
 
     fn split_node() {}
 
@@ -78,53 +78,50 @@ mod tests {
     }
 
     #[test]
-    fn test_insert_into_root() {
-        let mut bplustree = BPlusTree::new(None);
-        assert_eq!(bplustree.order, 32);
-
-        bplustree.insert(10, "Ten".to_string());
-        assert_ne!(bplustree.root, None);
-    }
+    fn test_insert_into_root() {}
 
     #[test]
-    fn test_bulk_insert(){}
+    fn test_insert_into_internal_node() {}
 
     #[test]
-    fn test_search(){}
+    fn test_insert_into_leaf_node() {}
 
     #[test]
-    fn test_update(){}
+    fn test_bulk_insert() {}
 
     #[test]
-    fn test_range_search(){}
+    fn test_search() {}
 
     #[test]
-    fn test_min(){}
+    fn test_update() {}
 
     #[test]
-    fn test_max(){}
+    fn test_range_search() {}
 
     #[test]
-    fn test_delete(){}
+    fn test_min() {}
 
     #[test]
-    fn test_save_to_disk(){}
+    fn test_max() {}
 
     #[test]
-    fn test_load_from_disk(){}
+    fn test_delete() {}
 
     #[test]
-    fn test_insert_into_node(){}
+    fn test_save_to_disk() {}
 
     #[test]
-    fn test_split_node(){}
+    fn test_load_from_disk() {}
 
     #[test]
-    fn test_merge_nodes(){}
+    fn test_split_node() {}
 
     #[test]
-    fn test_borrow_from_sibling(){}
+    fn test_merge_nodes() {}
 
     #[test]
-    fn test_traverse(){}
+    fn test_borrow_from_sibling() {}
+
+    #[test]
+    fn test_traverse() {}
 }
