@@ -1,3 +1,5 @@
+use std::collections::BTreeMap;
+
 #[derive(Debug, PartialEq, Clone)]
 pub enum Node {
     Internal(InternalNode),
@@ -6,14 +8,12 @@ pub enum Node {
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct InternalNode {
-    keys: Vec<i32>,
-    children: Vec<Box<Node>>,
+    enteries: BTreeMap<i32, Box<Node>>,
 }
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct LeafNode {
-    keys: Vec<i32>,
-    values: Vec<String>,
+    enteries: BTreeMap<i32, String>,
     next: Option<Box<LeafNode>>,
     prev: Option<Box<LeafNode>>,
 }
@@ -39,7 +39,12 @@ impl BPlusTree {
         }
     }
 
-    pub fn bulk_insert() {}
+    pub fn bulk_insert(&mut self, keys: Vec<i32>, values: Vec<String>) {
+        match &mut self.root {
+            None => self.bulk_insert_into_root(keys, values),
+            Some(Node) => println!("bulk insert into either and internal node or a leaf node"),
+        }
+    }
 
     pub fn search() {}
 
@@ -58,9 +63,10 @@ impl BPlusTree {
     pub fn load_from_disk() {}
 
     fn insert_into_root(&mut self, key: i32, value: String) {
+        let mut enteries = BTreeMap::new();
+        enteries.insert(key, value);
         let leaf = LeafNode {
-            keys: vec![key],
-            values: vec![value],
+            enteries,
             next: None,
             prev: None,
         };
@@ -70,6 +76,28 @@ impl BPlusTree {
     fn insert_into_internal_node(node: &mut Node, key: i32, value: String, order: usize) {}
 
     fn insert_into_leaf_node(node: &mut Node, key: i32, value: String, order: usize) {}
+
+    fn bulk_insert_into_root(&mut self, keys: Vec<i32>, values: Vec<String>) {
+        let mut enteries = BTreeMap::new();
+        if keys.len() > self.order {
+        } else {
+            keys.into_iter().zip(values).for_each(|(k, v)| {
+                enteries.insert(k, v);
+            });
+
+            let leaf = LeafNode {
+                enteries,
+                next: None,
+                prev: None,
+            };
+
+            self.root = Some(Box::new(Node::Leaf(leaf)));
+        }
+    }
+
+    fn bulk_insert_into_leaf_node() {}
+
+    fn bulk_insert_into_internal_node() {}
 
     fn split_node() {}
 
@@ -98,8 +126,7 @@ mod tests {
         if let Some(node) = &tree.root {
             match node.as_ref() {
                 Node::Leaf(leaf) => {
-                    assert_eq!(leaf.keys, vec![5]);
-                    assert_eq!(leaf.values, vec!["Five".to_string()]);
+                    assert_eq!(leaf.enteries.get(&5), Some(&"Five".to_string()));
                     assert!(leaf.next.is_none());
                     assert!(leaf.prev.is_none());
                 }
@@ -115,6 +142,54 @@ mod tests {
 
     #[test]
     fn test_insert_into_leaf_node() {}
+
+    #[test]
+    fn test_bulk_insert_into_root() {
+        let mut tree = BPlusTree::new(None);
+        let keys = vec![5, 3, 7, 1, 9];
+        let values = vec![
+            "Five".to_string(),
+            "Three".to_string(),
+            "Seven".to_string(),
+            "One".to_string(),
+            "Nine".to_string(),
+        ];
+
+        tree.bulk_insert(keys.clone(), values.clone());
+
+        if let Some(node) = &tree.root {
+            match node.as_ref() {
+                Node::Leaf(leaf) => {
+                    if keys.len() > tree.order {
+                    } else {
+                        for (k, v) in keys.iter().zip(values.iter()) {
+                            assert_eq!(leaf.enteries.get(k), Some(v));
+                        }
+
+                        let prev_key: Option<i32> = None;
+
+                        for k in leaf.enteries.keys() {
+                            if let Some(prev) = prev_key {
+                                assert!(prev < *k);
+                            }
+                        }
+
+                        assert!(leaf.next.is_none());
+                        assert!(leaf.prev.is_none());
+                    }
+                }
+                Node::Internal(_) => panic!("Expected Leaf node, got internal node"),
+            }
+        } else {
+            panic!("Root node should not be None after bulk insertion");
+        }
+    }
+
+    #[test]
+    fn test_bulk_insert_into_internal_node() {}
+
+    #[test]
+    fn test_bulk_insert_into_leaf_node() {}
 
     #[test]
     fn test_bulk_insert() {}
