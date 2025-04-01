@@ -34,14 +34,37 @@ impl BPlusTree {
 
     pub fn insert(&mut self, key: i32, value: String) {
         match &mut self.root {
-            None => println!("insert from root node"),
+            None => {
+                let mut enteries = BTreeMap::new();
+                enteries.insert(key, value);
+                let leaf = LeafNode {
+                    enteries,
+                    next: None,
+                    prev: None,
+                };
+
+                self.root = Some(Box::new(Node::Leaf(leaf)));
+            },
             Some(Node) => println!("insert into either an internal node or a leaf node"),
         }
     }
 
     pub fn bulk_insert(&mut self, keys: Vec<i32>, values: Vec<String>) {
         match &mut self.root {
-            None => println!("bulk insert starting from root node"),
+            None => {
+                if keys.len() <= self.order {
+                    let enteries: BTreeMap<i32, String> = keys.into_iter().zip(values.into_iter()).collect();
+                    let leaf = LeafNode {
+                        enteries,
+                        next: None,
+                        prev: None
+                    };
+                    
+                    self.root = Some(Box::new(Node::Leaf(leaf)));
+                } else {
+                    println!("split and enter")
+                }
+            },
             Some(Node) => println!("bulk insert into either and internal node or a leaf node"),
         }
     }
