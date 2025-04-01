@@ -63,14 +63,18 @@ impl BPlusTree {
     pub fn load_from_disk() {}
 
     fn split_node(&mut self, node: &mut Node) -> Option<(i32, Box<Node>)> {
+        let enteries_len = match node {
+            Node::Leaf(leaf) => leaf.enteries.len(),
+            Node::Internal(internal) => internal.enteries.len(),
+        };
+
+        if enteries_len <= self.order {
+            return None;
+        }
+
+        let split_point = self.order / 2;
         match node {
             Node::Leaf(leaf) => {
-                if leaf.enteries.len() <= self.order {
-                    return None;
-                }
-
-                let split_point = self.order / 2;
-
                 let split_key = *leaf.enteries.keys().nth(split_point).unwrap();
 
                 let right_enteries = leaf.enteries.split_off(&split_key);
@@ -83,17 +87,9 @@ impl BPlusTree {
 
                 leaf.next = Some(Box::new(right_leaf.clone()));
 
-                let new_right_node = Box::new(Node::Leaf(right_leaf));
-
-                return Some((split_key, new_right_node)); // Handle new root case
+                return Some((split_key, Box::new(Node::Leaf(right_leaf))));
             }
             Node::Internal(internal) => {
-                if internal.enteries.len() <= self.order {
-                    return None;
-                }
-
-                let split_point = self.order / 2;
-
                 let split_key = *internal.enteries.keys().nth(split_point).unwrap();
 
                 let right_enteries = internal.enteries.split_off(&split_key);
@@ -102,9 +98,7 @@ impl BPlusTree {
                     enteries: right_enteries,
                 };
 
-                let new_right_node = Box::new(Node::Internal(right_internal));
-
-                return Some((split_key, new_right_node)); // Handle new root case
+                return Some((split_key, Box::new(Node::Internal(right_internal))));
             }
         }
     }
@@ -266,11 +260,12 @@ mod tests {
                     match *right_node {
                         Node::Leaf(right_leaf) => {
                             // Verify total entries after split still fit in tree
-                        let total_entries = left_leaf.enteries.len() + right_leaf.enteries.len();
-                        assert!(
-                            total_entries == large_entries.len(),
-                            "No entries should be lost during split"
-                        );
+                            let total_entries =
+                                left_leaf.enteries.len() + right_leaf.enteries.len();
+                            assert!(
+                                total_entries == large_entries.len(),
+                                "No entries should be lost during split"
+                            );
                             assert!(
                                 right_leaf.enteries.keys().all(|k| *k >= split_key),
                                 "All keys in right node should be >= split key"
