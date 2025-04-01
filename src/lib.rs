@@ -76,11 +76,11 @@ impl BPlusTree {
                 match *node {
                     Node::Leaf(leaf) => {
                         let value = leaf.enteries.get(&key).unwrap().clone();
-                        Some(value)
+                        return Some(value);
                     }
                     Node::Internal(internal) => {
                         println!("search in internal node");
-                        None
+                        return None;
                     }
                 }
             }
