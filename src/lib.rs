@@ -69,7 +69,23 @@ impl BPlusTree {
         }
     }
 
-    pub fn search() {}
+    pub fn search(self, key: i32) -> Option<String> {
+        match self.root {
+            None => None,
+            Some(node) => {
+                match *node {
+                    Node::Leaf(leaf) => {
+                        let value = leaf.enteries.get(&key).unwrap().clone();
+                        Some(value)
+                    }
+                    Node::Internal(internal) => {
+                        println!("search in internal node");
+                        None
+                    }
+                }
+            }
+        }
+    }
 
     pub fn update() {}
 
