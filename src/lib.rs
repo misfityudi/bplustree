@@ -34,14 +34,14 @@ impl BPlusTree {
 
     pub fn insert(&mut self, key: i32, value: String) {
         match &mut self.root {
-            None => self.insert_into_root(key, value),
+            None => println!("insert from root node"),
             Some(Node) => println!("insert into either an internal node or a leaf node"),
         }
     }
 
     pub fn bulk_insert(&mut self, keys: Vec<i32>, values: Vec<String>) {
         match &mut self.root {
-            None => self.bulk_insert_into_root(keys, values),
+            None => println!("bulk insert starting from root node"),
             Some(Node) => println!("bulk insert into either and internal node or a leaf node"),
         }
     }
@@ -61,51 +61,6 @@ impl BPlusTree {
     pub fn save_to_disk() {}
 
     pub fn load_from_disk() {}
-
-    fn insert_into_root(&mut self, key: i32, value: String) {
-        let mut enteries = BTreeMap::new();
-        enteries.insert(key, value);
-        let leaf = LeafNode {
-            enteries,
-            next: None,
-            prev: None,
-        };
-        self.root = Some(Box::new(Node::Leaf(leaf)));
-    }
-
-    fn insert_into_internal_node(node: &mut Node, key: i32, value: String, order: usize) {}
-
-    fn insert_into_leaf_node(node: &mut Node, key: i32, value: String, order: usize) {}
-
-    fn bulk_insert_into_root(&mut self, keys: Vec<i32>, values: Vec<String>) {
-        let mut enteries = BTreeMap::new();
-        let num_of_keys = keys.len();
-
-        if num_of_keys > self.order {
-            if num_of_keys < self.order * (self.order - 1) {
-
-            }
-
-        } else {
-            keys.into_iter().zip(values).for_each(|(k, v)| {
-                enteries.insert(k, v);
-            });
-
-            let leaf = LeafNode {
-                enteries,
-                next: None,
-                prev: None,
-            };
-
-            self.root = Some(Box::new(Node::Leaf(leaf)));
-        }
-    }
-
-    fn bulk_insert_into_leaf_node() {
-
-    }
-
-    fn bulk_insert_into_internal_node() {}
 
     fn split_node(&mut self, node: &mut Node) -> Option<(i32, Box<Node>)> {
         match node {
@@ -172,7 +127,7 @@ mod tests {
     }
 
     #[test]
-    fn test_insert_into_root() {
+    fn test_insert() {
         let mut tree = BPlusTree::new(None);
         tree.insert(5, "Five".to_string());
 
@@ -191,13 +146,7 @@ mod tests {
     }
 
     #[test]
-    fn test_insert_into_internal_node() {}
-
-    #[test]
-    fn test_insert_into_leaf_node() {}
-
-    #[test]
-    fn test_bulk_insert_into_root() {
+    fn test_bulk_insert() {
         let mut tree = BPlusTree::new(None);
         let keys = vec![5, 3, 7, 1, 9];
         let values = vec![
@@ -237,15 +186,6 @@ mod tests {
             panic!("Root node should not be None after bulk insertion");
         }
     }
-
-    #[test]
-    fn test_bulk_insert_into_internal_node() {}
-
-    #[test]
-    fn test_bulk_insert_into_leaf_node() {}
-
-    #[test]
-    fn test_bulk_insert() {}
 
     #[test]
     fn test_search() {}
