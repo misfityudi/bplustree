@@ -10,8 +10,7 @@ pub enum Node {
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct InternalNode {
-    keys: Vec<i32>,
-    children: Vec<Rc<RefCell<Node>>>,
+    enteries: BTreeMap<i32, Rc<Node>>,
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -106,7 +105,7 @@ impl BPlusTree {
     fn split_node(&mut self, node: &mut Node) -> Option<(i32, Box<Node>)> {
         let enteries_len = match node {
             Node::Leaf(leaf) => leaf.borrow().enteries.len(),
-            Node::Internal(internal) => internal.borrow().keys.len(),
+            Node::Internal(internal) => internal.borrow().enteries.len(),
         };
 
         if enteries_len <= self.order {
@@ -132,15 +131,12 @@ impl BPlusTree {
                 return Some((split_key, Box::new(Node::Leaf(Rc::clone(&right_leaf_rc)))));
             }
             Node::Internal(internal) => {
-                let split_key = internal.borrow().keys[split_point];
+                let split_key = *internal.borrow().enteries.keys().nth(split_point).unwrap();
 
                 let mut internal_borrow = internal.borrow_mut();
-                let right_keys = internal_borrow.keys.split_off(split_point + 1);
-                let right_children = internal_borrow.children.split_off(split_point + 1);
-
+                let right_enteries = internal_borrow.enteries.split_off(&split_key);
                 let right_internal = InternalNode {
-                    keys: right_keys,
-                    children: right_children,
+                    enteries: right_enteries,
                 };
 
                 return Some((
