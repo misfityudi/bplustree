@@ -1,24 +1,15 @@
-use std::cell::RefCell;
+// Ensure the `node` module is declared or imported correctly
+mod node;
+mod leaf_node;
+mod internal_node;
+
+use node::Node;
+use internal_node::InternalNode;
+use leaf_node::LeafNode;
+
 use std::collections::BTreeMap;
 use std::rc::Rc;
-
-#[derive(Debug, PartialEq, Clone)]
-pub enum Node {
-    Internal(Rc<RefCell<InternalNode>>),
-    Leaf(Rc<RefCell<LeafNode>>),
-}
-
-#[derive(Debug, PartialEq, Clone)]
-pub struct InternalNode {
-    enteries: BTreeMap<i32, Rc<Node>>,
-}
-
-#[derive(Debug, PartialEq, Clone)]
-pub struct LeafNode {
-    enteries: BTreeMap<i32, String>,
-    next: Option<Rc<RefCell<LeafNode>>>,
-    prev: Option<Rc<RefCell<LeafNode>>>,
-}
+use std::cell::RefCell;
 
 #[derive(Debug)]
 pub struct BPlusTree {
@@ -39,11 +30,7 @@ impl BPlusTree {
             None => {
                 let mut enteries = BTreeMap::new();
                 enteries.insert(key, value);
-                let leaf = LeafNode {
-                    enteries,
-                    next: None,
-                    prev: None,
-                };
+                let leaf = LeafNode::new(enteries, None, None);
 
                 self.root = Some(Box::new(Node::Leaf(Rc::new(RefCell::new(leaf)))));
             }
@@ -57,11 +44,7 @@ impl BPlusTree {
                 if keys.len() <= self.order {
                     let enteries: BTreeMap<i32, String> =
                         keys.into_iter().zip(values.into_iter()).collect();
-                    let leaf = LeafNode {
-                        enteries,
-                        next: None,
-                        prev: None,
-                    };
+                    let leaf = LeafNode::new(enteries, None, None);
 
                     self.root = Some(Box::new(Node::Leaf(Rc::new(RefCell::new(leaf)))));
                 } else {
@@ -102,13 +85,13 @@ impl BPlusTree {
 
     pub fn load_from_disk() {}
 
-    fn split_node(&mut self, node: &mut Node) -> Option<(i32, Box<Node>)> {
+    fn split_node(self, node: &mut Node) -> Option<(i32, Box<Node>)> {
         let enteries_len = match node {
             Node::Leaf(leaf) => leaf.borrow().enteries.len(),
             Node::Internal(internal) => internal.borrow().enteries.len(),
         };
 
-        if enteries_len <= self.order {
+        if enteries_len <= (self.order - 1) {
             return None;
         }
 
@@ -145,6 +128,28 @@ impl BPlusTree {
                 ));
             }
         }
+    }
+
+    fn split_leaf(self, leaf: &mut LeafNode) -> Option<(i32, LeafNode)> {
+        let enteries_len = leaf.enteries.len();
+        if enteries_len < self.order {
+            return None;
+        } else {
+            let split_position = self.order / 2;
+            let split_key = *leaf.enteries.keys().nth(split_position).unwrap();
+            let right_enteries = leaf.enteries.split_off(&split_key);
+
+            // let right_leaf = Rc::new(RefCell::new(LeafNode {
+            //     enteries: right_enteries,
+            //     next: leaf.next.take(),
+            //     prev: 
+            // }))
+            None
+        }
+    }
+
+    fn split_internal(internal: &mut InternalNode){
+
     }
 
     fn merge_nodes() {}
@@ -265,7 +270,7 @@ mod tests {
         };
 
         let mut small_node = Node::Leaf(Rc::new(RefCell::new(small_leaf)));
-        assert!(tree.split_node(&mut small_node).is_none());
+        assert!(&tree.split_node(&mut small_node).is_none());
 
         let mut large_entries = BTreeMap::new();
         for i in 1..=10 {
@@ -281,7 +286,7 @@ mod tests {
 
         let mut node = Node::Leaf(Rc::new(RefCell::new(large_leaf)));
 
-        let split_result = tree.split_node(&mut node);
+        let split_result = &tree.split_node(&mut node);
         assert!(
             split_result.is_some(),
             "Node should split when enteries > order"
@@ -297,11 +302,11 @@ mod tests {
                     );
 
                     assert!(
-                        left_leaf.borrow().enteries.keys().all(|k| *k < split_key),
+                        left_leaf.borrow().enteries.keys().all(|k| *k < *split_key),
                         "All keys in left node should be less than split key"
                     );
 
-                    match *right_node {
+                    match **right_node {
                         Node::Leaf(right_leaf) => {
                             // Verify total entries after split still fit in tree
                             let total_entries = left_leaf.borrow().enteries.len()
@@ -311,7 +316,7 @@ mod tests {
                                 "No entries should be lost during split"
                             );
                             assert!(
-                                right_leaf.borrow().enteries.keys().all(|k| *k >= split_key),
+                                right_leaf.borrow().enteries.keys().all(|k| *k >= *split_key),
                                 "All keys in right node should be >= split key"
                             );
 
@@ -334,7 +339,7 @@ mod tests {
 
                             // Verify split key is the smallest key in right node
                             assert_eq!(
-                                split_key,
+                                *split_key,
                                 *right_leaf.borrow().enteries.keys().next().unwrap(),
                                 "Split key should be smallest key in right node"
                             );
