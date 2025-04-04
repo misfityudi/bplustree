@@ -18,7 +18,7 @@ impl LeafNode {
                 next: None,
                 prev: None,
             }),
-            _ => None
+            _ => None,
         }
     }
 
