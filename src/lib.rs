@@ -48,9 +48,9 @@ impl BPlusTree {
                         keys.into_iter().zip(values.into_iter()).collect();
                     let leaf = LeafNode::new(enteries, Some(self.order)).unwrap();
 
-                    self.root = Some(Rc::new(RefCell::new(
-                        Node::Leaf(Rc::new(RefCell::new(leaf))),
-                    )));
+                    self.root = Some(Rc::new(RefCell::new(Node::Leaf(Rc::new(RefCell::new(
+                        leaf,
+                    ))))));
                 } else {
                     println!("split and enter")
                 }

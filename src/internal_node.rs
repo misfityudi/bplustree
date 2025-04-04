@@ -12,7 +12,7 @@ pub struct InternalNode {
 impl InternalNode {
     pub fn new(enteries: BTreeMap<i32, Rc<Node>>, order: Option<usize>) -> Option<Self> {
         let order = order.unwrap_or(32);
-        if enteries.len() <order {
+        if enteries.len() < order {
             return Some(Self { enteries });
         } else {
             return None;
