@@ -58,15 +58,30 @@ impl BPlusTree {
     pub fn search(&self, key: i32) -> Option<String> {
         match &self.root {
             None => None,
-            Some(node) => match &*node.borrow() {
-                Node::Leaf(leaf) => {
-                    return leaf.enteries.get(&key).cloned();
+            Some(node) => self.search_node(node, key),
+        }
+    }
+
+    pub fn search_node(&self, node: &Rc<RefCell<Node>>, key: i32) -> Option<String> {
+        match &*node.borrow() {
+            Node::Leaf(leaf) => {
+                return leaf.enteries.get(&key).cloned();
+            }
+            Node::Internal(internal) => {
+                let mut child_iter = internal.enteries.range(..=key);
+
+                // Try to find the largest key ≤ `key`
+                if let Some((_child_key, child_node)) = child_iter.next_back() {
+                    return self.search_node(child_node, key);
                 }
-                Node::Internal(internal) => {
-                    println!("search in internal node");
-                    return None;
+
+                // If no such key exists, use the rightmost child
+                if let Some((_child_key, last_child)) = internal.enteries.iter().next_back() {
+                    return self.search_node(last_child, key);
                 }
-            },
+
+                return None;
+            }
         }
     }
 
