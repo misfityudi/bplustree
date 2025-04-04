@@ -13,7 +13,7 @@ impl LeafNode {
     pub fn new(enteries: BTreeMap<i32, String>, order: Option<usize>) -> Option<Self> {
         let order = order.unwrap_or(32);
         match enteries.len() {
-            len if len > 0 && len < order => Some(Self {
+            len if len < order => Some(Self {
                 enteries,
                 next: None,
                 prev: None,
@@ -49,7 +49,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_new_leafnode() {
+    fn test_new_leaf_node() {
         let no_enteries = BTreeMap::new();
         let new_leaf = LeafNode::new(no_enteries, Some(3));
 
