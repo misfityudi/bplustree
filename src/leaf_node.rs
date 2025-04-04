@@ -12,14 +12,13 @@ pub struct LeafNode {
 impl LeafNode {
     pub fn new(enteries: BTreeMap<i32, String>, order: Option<usize>) -> Option<Self> {
         let order = order.unwrap_or(32);
-        if enteries.len() < order {
-            return Some(Self {
+        match enteries.len() {
+            len if len > 0 && len < order => Some(Self {
                 enteries,
                 next: None,
                 prev: None,
-            });
-        } else {
-            return None;
+            }),
+            _ => None
         }
     }
 
