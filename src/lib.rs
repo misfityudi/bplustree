@@ -32,9 +32,7 @@ impl BPlusTree {
                 enteries.insert(key, value);
                 let leaf = LeafNode::new(enteries, Some(self.order)).unwrap();
 
-                self.root = Some(Rc::new(RefCell::new(Node::Leaf(Rc::new(RefCell::new(
-                    leaf,
-                ))))));
+                self.root = Some(Rc::new(RefCell::new(Node::Leaf(leaf))));
             }
             Some(Node) => println!("insert into either an internal node or a leaf node"),
         }
@@ -48,9 +46,7 @@ impl BPlusTree {
                         keys.into_iter().zip(values.into_iter()).collect();
                     let leaf = LeafNode::new(enteries, Some(self.order)).unwrap();
 
-                    self.root = Some(Rc::new(RefCell::new(Node::Leaf(Rc::new(RefCell::new(
-                        leaf,
-                    ))))));
+                    self.root = Some(Rc::new(RefCell::new(Node::Leaf(leaf))));
                 } else {
                     println!("split and enter")
                 }
@@ -63,14 +59,10 @@ impl BPlusTree {
         match &self.root {
             None => None,
             Some(node) => match &*node.borrow() {
-                Node::Leaf(ref leaf) => {
-                    if let Some(value) = leaf.borrow().enteries.get(&key) {
-                        return Some(value.clone());
-                    } else {
-                        return None;
-                    }
+                Node::Leaf(leaf) => {
+                    return leaf.enteries.get(&key).cloned();
                 }
-                Node::Internal(ref internal) => {
+                Node::Internal(internal) => {
                     println!("search in internal node");
                     return None;
                 }
@@ -114,12 +106,12 @@ mod tests {
         let mut tree = BPlusTree::new(None);
         tree.insert(5, "Five".to_string());
 
-        if let Some(node) = &tree.root {
+        if let Some(node) = tree.root {
             match &*node.borrow() {
-                Node::Leaf(ref leaf) => {
-                    assert_eq!(leaf.borrow().enteries.get(&5), Some(&"Five".to_string()));
-                    assert!(leaf.borrow().next.is_none());
-                    assert!(leaf.borrow().prev.is_none());
+                Node::Leaf(leaf) => {
+                    assert_eq!(leaf.enteries.get(&5), Some(&"Five".to_string()));
+                    assert!(leaf.next.is_none());
+                    assert!(leaf.prev.is_none());
                 }
                 Node::Internal(_) => panic!("Expected Leaf node, got Internal node"),
             }
@@ -148,19 +140,19 @@ mod tests {
                     if keys.len() > tree.order {
                     } else {
                         for (k, v) in keys.iter().zip(values.iter()) {
-                            assert_eq!(leaf.borrow().enteries.get(k), Some(v));
+                            assert_eq!(leaf.enteries.get(k), Some(v));
                         }
 
                         let prev_key: Option<i32> = None;
 
-                        for k in leaf.borrow().enteries.keys() {
+                        for k in leaf.enteries.keys() {
                             if let Some(prev) = prev_key {
                                 assert!(prev < *k);
                             }
                         }
 
-                        assert!(leaf.borrow().next.is_none());
-                        assert!(leaf.borrow().prev.is_none());
+                        assert!(leaf.next.is_none());
+                        assert!(leaf.prev.is_none());
                     }
                 }
                 Node::Internal(_) => panic!("Expected Leaf node, got internal node"),
