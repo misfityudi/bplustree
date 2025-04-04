@@ -6,11 +6,11 @@ use crate::Node;
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct InternalNode {
-    pub enteries: BTreeMap<i32, Rc<Node>>,
+    pub enteries: BTreeMap<i32, Rc<RefCell<Node>>>,
 }
 
 impl InternalNode {
-    pub fn new(enteries: BTreeMap<i32, Rc<Node>>, order: Option<usize>) -> Option<Self> {
+    pub fn new(enteries: BTreeMap<i32, Rc<RefCell<Node>>>, order: Option<usize>) -> Option<Self> {
         let order = order.unwrap_or(32);
         match enteries.len() {
             0 => None,
