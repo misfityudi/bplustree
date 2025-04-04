@@ -12,10 +12,10 @@ pub struct InternalNode {
 impl InternalNode {
     pub fn new(enteries: BTreeMap<i32, Rc<Node>>, order: Option<usize>) -> Option<Self> {
         let order = order.unwrap_or(32);
-        if enteries.len() < order {
-            return Some(Self { enteries });
-        } else {
-            return None;
+        match enteries.len() {
+            0 => None,
+            len if len > 0 && len < order => Some(Self { enteries }),
+            _ => None,
         }
     }
 
@@ -34,5 +34,22 @@ impl InternalNode {
 
             return Some((split_key, Rc::new(RefCell::new(right_internal))));
         }
+    }
+}
+
+#[cfg(test)]
+
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_new_internal_node() {
+        let no_enteries = BTreeMap::new();
+        let new_internal_node = InternalNode::new(no_enteries, Some(3));
+
+        assert!(
+            new_internal_node.as_ref().is_none(),
+            "New internal node should not created_without any enteries"
+        );
     }
 }
