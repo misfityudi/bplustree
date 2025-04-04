@@ -10,8 +10,13 @@ pub struct InternalNode {
 }
 
 impl InternalNode {
-    pub fn new(enteries: BTreeMap<i32, Rc<Node>>) -> Self {
-        Self { enteries }
+    pub fn new(enteries: BTreeMap<i32, Rc<Node>>, order: Option<usize>) -> Option<Self> {
+        let order = order.unwrap_or(32);
+        if enteries.len() <order {
+            return Some(Self { enteries });
+        } else {
+            return None;
+        }
     }
 
     pub fn split(&mut self, order: Option<usize>) -> Option<(i32, Rc<RefCell<InternalNode>>)> {
@@ -25,7 +30,7 @@ impl InternalNode {
 
             let right_enteries = self.enteries.split_off(&split_key);
 
-            let right_internal = InternalNode::new(right_enteries);
+            let right_internal = InternalNode::new(right_enteries, Some(order)).unwrap();
 
             return Some((split_key, Rc::new(RefCell::new(right_internal))));
         }

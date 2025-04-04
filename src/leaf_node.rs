@@ -10,12 +10,18 @@ pub struct LeafNode {
 }
 
 impl LeafNode {
-    pub fn new(enteries: BTreeMap<i32, String>) -> Self {
-        Self {
+    pub fn new(enteries: BTreeMap<i32, String>, order: Option<usize>) -> Option<Self> {
+        let order = order.unwrap_or(32);
+        if enteries.len() < order{
+            return Some(Self {
             enteries,
             next: None,
             prev: None,
+        })
+        } else {
+            return None;
         }
+        
     }
 
     pub fn split(&mut self, order: Option<usize>) -> Option<(i32, Rc<RefCell<LeafNode>>)> {
@@ -29,7 +35,7 @@ impl LeafNode {
 
             let right_enteries = self.enteries.split_off(&split_key);
 
-            let mut right_leaf = LeafNode::new(right_enteries);
+            let mut right_leaf = LeafNode::new(right_enteries, Some(order)).unwrap();
             right_leaf.next = self.next.take();
             right_leaf.prev = Some(Rc::new(RefCell::new(self.clone())));
 
@@ -38,4 +44,17 @@ impl LeafNode {
     }
 
     pub fn merge() {}
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_new_leafnode(){
+
+    }
+
+    #[test]
+    fn test_split_leafnode(){}
 }
