@@ -99,7 +99,13 @@ impl BPlusTree {
 
     pub fn load_from_disk() {}
 
-    fn merge_nodes() {}
+    fn merge_with_left(&mut self, left: &mut Node, parent: &mut InternalNode) -> Option<Node> {
+        None
+    }
+
+    fn merge_with_right(&mut self, right: &mut Node, parent: &mut InternalNode) -> Option<Node> {
+        None
+    }
 
     fn borrow_from_sibiling() {}
 

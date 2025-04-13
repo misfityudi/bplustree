@@ -41,7 +41,6 @@ impl LeafNode {
         }
     }
 
-    pub fn merge() {}
 }
 
 #[cfg(test)]
